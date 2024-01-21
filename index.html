@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+    <title>Detona Ralph</title>
+    <link rel="stylesheet" href="./src/styles/main.css" />
+</head>
+
+<body>
+    <div>
+        <div id="menu-game">
+            <button id="start" onclick="">Iniciar Jogo</button>
+            <div class="enemy"></div>
+
+        </div>
+    </div>
+
+
+
+
+
+    <div class="container">
+        <div class="menu">
+            <div class="menu-time">
+                <h2 style="color: red">Time Left</h2>
+                <h2 id="time-left">0</h2>
+            </div>
+            <div class="menu-score">
+                <h2 style="color: red">Your Score</h2>
+                <h2 id="score">0</h2>
+            </div>
+            <div class="menu-lives">
+                <img src="./src/images/player.png" alt="foto do jogador" height="30px" />
+                <h2 id="lives">x3
+                </h2>
+            </div>
+        </div>
+        <div>
+            <div class="panel">
+                <div class="panel-col">
+                    <div class="square" id="0"></div>
+                    <div class="square" id="1"></div>
+                    <div class="square" id="2"></div>
+                </div>
+
+                <div class="panel-col">
+                    <div class="square enemy destroy" id="3"></div>
+                    <div class="square" id="4"></div>
+                    <div class="square" id="5"></div>
+                </div>
+
+                <div class="panel-col">
+                    <div class="square" id="6"></div>
+                    <div class="square" id="7"></div>
+                    <div class="square" id="8"></div>
+                </div>
+                <div class="coinPool">
+                    <div id="0" class="coin"></div>
+                    <div id="1" class="coin"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script defer type="module" src="./src/System/UsingEngine.js"></script>
+</body>
+
+</html>

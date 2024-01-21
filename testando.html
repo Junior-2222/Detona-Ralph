@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quatro Triângulos na Janela</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #windowSvg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+        }
+
+        .topBorderPoint1,
+        .topBorderPoint2 {
+            fill: yellow;
+        }
+
+        .rightBorderPoint1,
+        .rightBorderPoint2 {
+            fill: red;
+        }
+
+        .bottomBorderPoint1,
+        .bottomBorderPoint2 {
+            fill: blue;
+        }
+
+        .leftBorderPoint1,
+        .leftBorderPoint2 {
+            fill: green;
+        }
+
+        .cornerPoint {
+            fill: purple;
+        }
+
+        .innerPoint {
+            fill: orange;
+        }
+
+        .triangle {
+            pointer-events: none;
+            fill: pink;
+        }
+
+        .rectangle {
+            pointer-events: none;
+            fill: rgb(4, 91, 253);
+        }
+
+        .collider {
+            cursor: pointer;
+            fill: #0f06;
+        }
+    </style>
+</head>
+
+<body>
+    <svg id="windowSvg">
+        <!-- Adicione um script para gerar pontos nas bordas e criar triângulos -->
+    </svg>
+
+    <script>
+        // export const Events = {
+        //     destroiJanela: new Event("destroiJanela"),
+        //     recuperaJanela: new Event("recuperaJanela"),
+        //     deletaJanela: new Event("deletaJanela"),
+
+        // };
+        // export const EventsHandle = {
+        //     exe: function (e) {
+        //         document.dispatchEvent(e);
+        //     },
+        //     add: function (e, fn) {
+        //         document.removeEventListener(e.type, fn);
+        //         document.addEventListener(e.type, fn);
+        //     },
+        //     rm: function (e, fn) { document.removeEventListener(e.type, fn); }
+        // }
+
+
+        //obj janela
+        //callback destroi, recupera, deleta
+        //quadrado.addlistener 
+        //load criar janela
+        //quando clico ativa tris e agenda listener. service destroi
+
+
+
+
+        var svg = document.getElementById('windowSvg');
+
+        const janela = new Janela({ x: 150, y: 320 }, 130, 130);
+
+
+
+        var deltaTime = 0;
+        var lastFrameTime = Date.now();
+
+        const actionsDebug = {
+            displayCorners(corners, className) {
+                corners.forEach(function (point) {
+                    svg.appendChild(actionsDebug.createCircle(point.x, point.y, className));
+
+                });
+            },
+            displayPoints(points, className1, className2) {
+                var circle1 = actionsDebug.createCircle(points[0].x, points[0].y, className1);
+                var circle2 = actionsDebug.createCircle(points[1].x, points[1].y, className2);
+                svg.appendChild(circle1);
+                svg.appendChild(circle2);
+            },
+            createCircle(x, y, className) {
+                var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', x);
+                circle.setAttribute('cy', y);
+                circle.setAttribute('r', '5');
+                circle.setAttribute('class', className);
+                return circle;
+            },
+            displayInnerPoint() {
+                var circle = actionsDebug.createCircle(x, y, 'innerPoint');
+                svg.appendChild(circle);
+            }
+
+        }
+
+        function Janela(pontoInicial, altura, largura) {
+            const prepareAnimacao = (triangle, pivot, direcaoP) => {
+
+                function mover(deslocamento) {
+                    function normalizeWithMagnitude(vector, mag) {
+                        if (mag !== 0) {
+                            return { x: vector.x / mag, y: vector.y / mag };
+                        } else {
+                            return { x: 0, y: 0 };
+                        }
+                    }
+                    const deltaY = direcaoP.y - pivot.y;
+                    const deltaX = direcaoP.x - pivot.x;
+
+                    const direcao = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+                    const vetorNormalizado = normalizeWithMagnitude({ x: deltaX, y: deltaY }, direcao);
+
+                    position.x = Math.floor((vetorNormalizado.x * deslocamento) * pivot.x);
+                    position.y = Math.floor((vetorNormalizado.y * deslocamento) * pivot.y);
+
+                    //console.log(`position:${position.x},${position.y}`)
+                }
+                const position = { x: 0, y: 0 }
+
+                triangle.style.pointerEvents = 'none';
+
+                let intensity = Math.random();
+
+                triangle.style.opacity = '1';
+                triangle.style.transformOrigin = `${pivot.x}px ${pivot.y}px`;
+                //this.quebrar=[() =>{},() =>{}]
+                this.quebrar.push(() => {
+                    setTimeout(() => {
+                        mover(1)
+                        triangle.style.transform = `rotate(${100 * Math.random() - 50}deg) translate(${position.x * intensity}px,${position.y * intensity}px)`;
+                        triangle.style.opacity = '0.3';
+                        triangle.style.transitionDuration = '0.5s'
+                    }, 100 * Math.random());
+                })
+
+                this.consertar.push(() => {
+                    return new Promise(resolve => {
+                        setTimeout(() => {
+                            triangle.style.opacity = '1';
+                            triangle.style.transitionDuration = '0.5s';
+                            triangle.style.transform = `rotate(${0}deg)translate(${0}px,${0}px)`;
+
+                        }, 0);
+                        setTimeout(() => { resolve(); }, 500)
+                    });
+                });
+                this.repor.push = () => {
+                    // setTimeout(() => {
+                    //     triangle.remove();
+                    // }, 5000);
+                    triangle.style.opacity = '1';
+                    triangle.style.transitionDuration = '0';
+                    triangle.style.transform = `rotate(${0}deg)translate(${0}px,${0}px)`;
+                }
+
+            }
+
+            this.pontoInicial = pontoInicial
+            this.altura = altura
+            this.largura = largura
+
+            this.verticeTL = { x: this.pontoInicial.x, y: this.pontoInicial.y }
+            this.verticeTR = { x: this.largura + this.pontoInicial.x, y: this.pontoInicial.y }
+            this.verticeBR = { x: this.largura + this.pontoInicial.x, y: this.altura + this.pontoInicial.y }
+            this.verticeBL = { x: this.pontoInicial.x, y: this.altura + this.pontoInicial.y }
+            this.corners = [
+                this.verticeTL, this.verticeTR, this.verticeBR, this.verticeBL
+            ]
+            const ativaRetangle = () => {
+                this.estado.refQuebrada.setAttribute('display', 'none');
+                this.estado.refInteira.setAttribute('display', 'initial');
+
+            }
+            const ativaTriangulos = () => {
+
+                this.estado.refQuebrada.setAttribute('display', 'initial');
+                this.estado.refInteira.setAttribute('display', 'none');
+            }
+
+            const consertar = async () => {
+                try {
+                    const promessas = (this?.consertar || []).map(fn => fn());
+                    await Promise.all(promessas);
+                    this.estado.isConsertando = false;
+                    this.estado.isRetangle = true;
+                    console.log('consertada');
+                } catch (error) {
+                    console.error('Erro ao executar as funções:', error);
+                }
+            };
+            const estourar = () => {
+                this?.quebrar.map(fn => fn())
+            }
+            const repor = () => {
+                this.repor.map(fn => fn())
+                this.estado.isRetangle = true;
+            }
+            this.estado = {
+                get currentY() { return this._currentY },
+                set currentY(v) {
+                    this._currentY = v
+                    this.refQuebrada.style.transition = 'transform 0.5s ease-in-out';
+                    this.refQuebrada.setAttribute('transform', `translate(0, ${this.currentY})`);
+
+
+                },
+                get trianglesCreated() {
+                    return this._trianglesCreated;
+                },
+                set trianglesCreated(v) {
+                    if (v) {
+                        if (this.isEstourada) {
+
+                        } else {
+
+                        }
+                    } else {
+
+                    }
+                    this._trianglesCreated = v
+                },
+                isGravityActive: false,
+                refInteira: false,
+                refQuebrada: false,
+                get isRetangle() {
+                    return this._isInteira
+                },
+                set isRetangle(v) {
+                    if (v) {
+                        console.log('isRetangle')
+                        this.isGravityActive = false;
+                        this.currentY = 0;
+                        this.isEstourada = false;
+                        this.isRachada = false;
+                        ativaRetangle();
+                    } else {
+                        ativaTriangulos();
+                    }
+
+                    this._isInteira = v
+                },
+                get isRachada() {
+                    return this._isRachada
+                },
+                set isRachada(v) {
+                    if (v) {
+
+                        console.log('isRachada')
+                        this.isRetangle = false;
+                    } else {
+                    }
+                    this._isRachada = v
+                },
+                get isEstourada() {
+                    return this._isEstourada
+                },
+                set isEstourada(v) {
+                    if (v) {
+                        estourar(v);
+                        console.log('isEstourada')
+                        this.isRachada = false;
+                        this.isGravityActive = true;
+                    } else {
+                        this.isGravityActive = false;
+                        this.refQuebrada.setAttribute('transform', `translate(0, 0)`);
+                    }
+                    this._isEstourada = v
+                },
+                get isConsertando() {
+                    return this._isConsertando
+                },
+                set isConsertando(v) {
+                    this._isConsertando = v
+                    if (v) {
+
+                        console.log('isConsertando')
+                        this.isEstourada = false;
+                        consertar();
+                    } else {
+
+                    }
+                }
+
+
+            }
+            this.physical = {
+                collider: {}
+
+            }
+
+
+            this.innerPoint = {};
+
+            Janela.prototype.Clicada = async (xClick = this.pontoInicial.x + this.largura / 2, yClick = this.pontoInicial.y + this.altura / 2, isPlayer) => {
+                this.innerPoint = { x: xClick, y: yClick };
+                if (this.estado.trianglesCreated == undefined)
+                    this.estado.trianglesCreated = false;
+
+                const tratarTriangulos = () => {
+                    if (isPlayer) { this.estado.trianglesCreated = false; } else { }
+
+                    if (this.estado.trianglesCreated) {
+
+                    } else {
+                        this.createElementJanelaRachada();
+
+                        var margin = 60;
+
+                        var tamanhoAresta = {
+                            top: this.verticeTR.x - this.verticeTL.x,
+                            right: this.verticeBR.y - this.verticeTR.y,
+                            bottom: this.verticeBR.x - this.verticeBL.x,
+                            left: this.verticeBL.y - this.verticeTL.y
+                        }
+                        const randomPontoEmLinha = (xTrueOrYFalse, tamanhoLinha, margin) => {
+                            return (Math.random() * (tamanhoLinha - 2 * margin) + margin) + (xTrueOrYFalse ? this.pontoInicial.x : this.pontoInicial.y)
+                        }
+                        var topBorder = [
+                            {
+                                x: randomPontoEmLinha(true, tamanhoAresta.top, margin),
+                                y: this.verticeTL.y
+                            },
+                            {
+                                x: randomPontoEmLinha(true, tamanhoAresta.top, margin),
+                                y: this.verticeTL.y
+                            }
+                        ];
+                        var rightBorder = [
+                            {
+                                x: this.verticeTR.x,
+                                y: randomPontoEmLinha(false, tamanhoAresta.right, margin)
+                            },
+                            {
+                                x: this.verticeTR.x,
+                                y: randomPontoEmLinha(false, tamanhoAresta.right, margin)
+                            }
+                        ];
+                        var bottomBorder = [
+                            {
+                                x: randomPontoEmLinha(true, tamanhoAresta.bottom, margin),
+                                y: this.verticeBR.y
+                            },
+                            {
+                                x: randomPontoEmLinha(true, tamanhoAresta.bottom, margin),
+                                y: this.verticeBR.y
+                            }
+                        ];
+                        var leftBorder = [
+                            {
+                                x: this.verticeBL.x,
+                                y: randomPontoEmLinha(false, tamanhoAresta.left, margin)
+                            },
+                            {
+                                x: this.verticeBL.x,
+                                y: randomPontoEmLinha(false, tamanhoAresta.left, margin)
+                            }
+                        ];
+
+                        topBorder.sort((a, b) => a.x - b.x);
+                        bottomBorder.sort((a, b) => b.x - a.x);
+                        rightBorder.sort((a, b) => a.y - b.y);
+                        leftBorder.sort((a, b) => b.y - a.y);
+
+                        actionsDebug.displayPoints(topBorder, 'topBorderPoint1', 'topBorderPoint2');
+                        actionsDebug.displayPoints(rightBorder, 'rightBorderPoint1', 'rightBorderPoint2');
+                        actionsDebug.displayPoints(bottomBorder, 'bottomBorderPoint1', 'bottomBorderPoint2');
+                        actionsDebug.displayPoints(leftBorder, 'leftBorderPoint1', 'leftBorderPoint2');
+
+
+                        const createTriangle = (v1, v2) => {
+                            function getRandomColor() {
+                                var letters = '0123456789ABCDEF';
+                                var color = '#';
+                                for (var i = 0; i < 6; i++) {
+                                    color += letters[Math.floor(Math.random() * 16)];
+                                }
+                                return color;
+                            }
+                            var triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                            triangle.setAttribute('points', `${this.innerPoint.x},${this.innerPoint.y} ${v1.x},${v1.y} ${v2.x},${v2.y}`);
+                            triangle.setAttribute('class', 'triangle');
+                            triangle.style.fill = getRandomColor();
+                            this.estado.refQuebrada.appendChild(triangle);
+                            prepareAnimacao(triangle, this.innerPoint, v1);
+                        }
+                        this.quebrar = []
+                        this.consertar = []
+                        this.repor = []
+                        createTriangle(this.verticeTL, topBorder[0]);
+                        createTriangle(topBorder[1], this.verticeTR);
+                        createTriangle(topBorder[0], topBorder[1]);
+                        createTriangle(this.verticeTR, rightBorder[0]);
+                        createTriangle(rightBorder[0], rightBorder[1]);
+                        createTriangle(rightBorder[1], this.verticeBR);
+                        createTriangle(this.verticeBR, bottomBorder[0]);
+                        createTriangle(bottomBorder[0], bottomBorder[1]);
+                        createTriangle(bottomBorder[1], this.verticeBL);
+                        createTriangle(this.verticeBL, leftBorder[0]);
+                        createTriangle(leftBorder[0], leftBorder[1]);
+                        createTriangle(leftBorder[1], this.verticeTL);
+
+                        this.estado.trianglesCreated = true;
+                    }
+                }
+
+
+                if (this.estado.isRetangle) {
+                    console.log('rachou')
+                    tratarTriangulos();
+                    this.estado.isRachada = true;
+                } else if (this.estado.isRachada) {
+                    console.log('quebrou')
+                    this.estado.isEstourada = true
+                } else {
+                    this.estado.isConsertando = true;
+                }
+
+            }
+            this.CriarJanela = () => {
+                function createRectangle(corners, className) {
+                    var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('x', corners[0].x);
+                    rect.setAttribute('y', corners[0].y);
+                    rect.setAttribute('width', corners[1].x - corners[0].x);
+                    rect.setAttribute('height', corners[2].y - corners[1].y);
+                    rect.setAttribute('class', className);
+                    return rect;
+                }
+
+                this.colliderEvent = (event) => {
+                    this.Clicada(event.x, event.y, false);
+
+                }
+                const createCollider = (() => {
+                    this.physical.collider = createRectangle(this.corners, 'collider');
+                    svg.insertBefore(this.physical.collider, svg.firstElementChild);
+
+                    this.physical.collider.addEventListener('click', this.colliderEvent);
+                })();
+                this.createElementJanelaRachada = () => {
+                    if (this.estado.refQuebrada) {
+                        let circulos = svg.getElementsByTagName('circle');
+                        while (circulos.length > 0) {
+                            circulos[0].parentNode.removeChild(circulos[0]);
+                        }
+
+                        actionsDebug.displayCorners(this.corners, 'cornerPoint');
+
+                        const novoElemento = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+
+                        svg.replaceChild(novoElemento, this.estado.refQuebrada);
+                        this.estado.refQuebrada = novoElemento;
+
+
+                    } else {
+
+                        this.estado.refQuebrada = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+                        svg.insertBefore(this.estado.refQuebrada, svg.firstElementChild);
+
+                    }
+
+
+                };
+                this.createElementJanelaRachada();
+                const createJanelaInteira = (() => {
+                    this.estado.refInteira = createRectangle(this.corners, 'rectangle');
+                    svg.insertBefore(this.estado.refInteira, svg.firstElementChild);
+                    this.estado.isRetangle = true
+                })()
+
+            }
+
+        }
+
+        function updatePhysics() {
+            if (janela.estado.isGravityActive) {
+                // Simula a gravidade movendo os triângulos para baixo
+                janela.estado.currentY += deltaTime * 2000;
+
+                // Verifica se os triângulos saíram da tela
+                if (janela.estado.currentY > 10000) {
+                    janela.repor();
+                }
+            }
+        }
+
+        function mainLoop() {
+            var currentTime = Date.now();
+            deltaTime = (currentTime - lastFrameTime) / 1000; // Converte para segundos
+            lastFrameTime = currentTime;
+
+            updatePhysics();
+
+            requestAnimationFrame(mainLoop);
+        }
+
+        window.onload = function () {
+            janela.CriarJanela();
+            janela.Clicada();
+            mainLoop();
+        };
+    </script>
+</body>
+
+</html>
